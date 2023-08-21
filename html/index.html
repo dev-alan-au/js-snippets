@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where does JS execute?</title>
+  <script>
+    setTimeout(() => {
+      console.log("Timeout head")
+    }, 100);   
+  </script>
+  <script>
+    console.log("Inline head 1");
+  </script>
+  <script src="./head.js"></script>
+  <script>
+    console.log("Inline head 2");
+  </script>
+</head>
+<body>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th>By order in code</th>
+        <th>Order of execution when timeout is 0</th>
+        <th>Order of execution when timeout is 100ms</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Timeout head</th>
+        <td>2</td>
+        <td>11</td>
+      </tr>
+      <tr>
+        <th>Inline head 1</th>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <th>External head</th>
+        <td>3</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <th>Inline head 2</th>
+        <td>4</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <th>IIFE body 1</th>
+        <td>5</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <th>Async body</th>
+        <td>12</td>
+        <td>10</td>
+      </tr>
+      <tr>
+        <th>Deferred body</th>
+        <td>11</td>
+        <td>9</td>
+      </tr>
+      <tr>
+        <th>Timeout body</th>
+        <td>10</td>
+        <td>12</td>
+      </tr>
+      <tr>
+        <th>Pre IIFE body 2</th>
+        <td>6</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <th>IIFE body 2</th>
+        <td>7</td>
+        <td>6</td>
+      </tr>
+      <tr>
+        <th>Post IIFE body 2</th>
+        <td>8</td>
+        <td>7</td>
+      </tr>
+      <tr>
+        <th>Inline body 1</th>
+        <td>9</td>
+        <td>8</td>
+      </tr>
+    </tbody>
+  </table>
+  <script>
+    (() => {
+      // immediately invoked function expression
+      console.log("IIFE body 1");
+    })();
+  </script>
+  <script defer src="./deferred.js"></script>
+  <script async src="./async.js"></script>
+  <script>
+    setTimeout(() => {
+      console.log("Timeout body");
+    }, 100);   
+  </script>
+  <script>
+    console.log("Pre IIFE body 2");
+    (() => {
+      // immediately invoked function expression
+      console.log("IIFE body 2");
+    })();
+    console.log("Post IIFE body 2");
+  </script>
+  <script>
+    console.log("Inline body 1");
+  </script>
+  
+  <!-- 
+    Results with 0 timeout:
+      1. index.html:13 Inline head 1
+      2. index.html:9 Timeout head
+      3. head.js:1 External head
+      4. index.html:17 Inline head 2
+      5. index.html:90 IIFE body 1
+      6. index.html:100 Pre IIFE body 2
+      7. index.html:103 IIFE body 2
+      8. index.html:105 Post IIFE body 2
+      9 .index.html:108 Inline body 1
+      10. index.html:96 Timeout body
+      11. deferred.js:1 Deferred body
+   -->
+
+   <!-- 
+    Results with 100ms timeout:
+      1. index.html:13 Inline head 1
+      2. head.js:1 External head
+      3. index.html:17 Inline head 2
+      4. index.html:90 IIFE body 1
+      5. index.html:100 Pre IIFE body 2
+      6. index.html:103 IIFE body 2
+      7. index.html:105 Post IIFE body 2
+      8. index.html:108 Inline body 1
+      9. deferred.js:1 Deferred body
+      10. index.html:9 Timeout head
+      11. index.html:96 Timeout body
+  -->
+</body>
+</html>
